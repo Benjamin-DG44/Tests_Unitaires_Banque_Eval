@@ -71,6 +71,7 @@ class CompteTest {
 
 
     @Test
+    @DisplayName("C3 : Créditer avec un montant strictement positif")
     void shouldIncreaseBalanceWhenCrediting() {
         // Arrange
         Compte compte = new Compte("FR001", "Alice", SOLDE_INITIAL, DECOUVERT_AUTORISE);
@@ -80,6 +81,28 @@ class CompteTest {
 
         // Assert
         assertThat(compte.getSolde()).isEqualByComparingTo("150.00");
+    }
+
+    @Test
+    @DisplayName("C3 : Créditer avec un montant négatif ou nul")
+    void shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant() {
+        // Arrange
+        BigDecimal montantNul = new BigDecimal("0.00");
+        BigDecimal montantNegatif = new BigDecimal("-10.00");
+        Compte compteA = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+
+        // Act and Assert
+        IllegalArgumentException resultNegatif= assertThrows(
+                IllegalArgumentException.class,
+                () -> compteA.crediter(montantNegatif)
+        );
+        IllegalArgumentException resultNul = assertThrows(
+                IllegalArgumentException.class,
+                () -> compteA.crediter(montantNul)
+        );
+
+        assertEquals("Le montant à créditer doit être strictement positif", resultNegatif.getMessage());
+        assertEquals("Le montant à créditer doit être strictement positif", resultNul.getMessage());
     }
 
 }
