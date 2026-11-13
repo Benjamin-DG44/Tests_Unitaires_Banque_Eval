@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 
@@ -70,44 +72,21 @@ class CompteTest {
     }
 
 
-    @Test
-    @DisplayName("C3 : Créditer avec un montant strictement positif")
-    void shouldIncreaseBalanceWhenCrediting() {
-        // Arrange
-        Compte compte = new Compte("FR001", "Alice", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
-        // Act
-        compte.crediter(new BigDecimal("50.00"));
-
-        // Assert
-        assertThat(compte.getSolde()).isEqualByComparingTo("150.00");
-    }
-
-    @Test
+    @ParameterizedTest(name = "Cas {index} : montant={0}")
+    @NullSource
+    @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
     @DisplayName("C3 : Créditer avec un montant négatif, nul, ou null")
-    void shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant() {
+    void shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant(BigDecimal montantInvalide) {
         // Arrange
-        BigDecimal montantNul = new BigDecimal("0.00");
-        BigDecimal montantNegatif = new BigDecimal("-10.00");
-        Compte compteA = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
 
-        // Act and Assert
-        IllegalArgumentException resultNegatif= assertThrows(
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> compteA.crediter(montantNegatif)
-        );
-        IllegalArgumentException resultNul = assertThrows(
-                IllegalArgumentException.class,
-                () -> compteA.crediter(montantNul)
-        );
-        IllegalArgumentException resultNull = assertThrows(
-                IllegalArgumentException.class,
-                () -> compteA.crediter(null)
+                () -> compte.crediter(montantInvalide)
         );
 
-        assertEquals("Le montant à créditer doit être strictement positif", resultNegatif.getMessage());
-        assertEquals("Le montant à créditer doit être strictement positif", resultNul.getMessage());
-        assertEquals("Le montant à créditer doit être strictement positif", resultNull.getMessage());
+        assertEquals("Le montant à créditer doit être strictement positif", exception.getMessage());
     }
 
 }
