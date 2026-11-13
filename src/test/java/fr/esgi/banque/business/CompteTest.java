@@ -71,7 +71,6 @@ class CompteTest {
         );
     }
 
-
     @ParameterizedTest(name = "Cas {index} : montant={0}")
     @NullSource
     @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
@@ -89,6 +88,18 @@ class CompteTest {
         assertEquals("Le montant à créditer doit être strictement positif", exception.getMessage());
     }
 
+    @Test
+    void shouldIncreaseBalanceWhenCrediting() {
+        // Arrange
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+
+        // Act
+        compte.crediter(new BigDecimal("50.00"));
+
+        // Assert
+        assertThat(compte.getSolde()).isEqualByComparingTo("150.00");
+    }
+
     @ParameterizedTest(name = "Cas {index} : montant={0}")
     @NullSource
     @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
@@ -104,6 +115,12 @@ class CompteTest {
         );
 
         assertEquals("Le montant à débiter doit être strictement positif", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("C5 : ")
+    void should() {
+
     }
 
 }
