@@ -1,5 +1,7 @@
 package fr.esgi.banque.business;
 
+import org.jspecify.annotations.NonNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +25,13 @@ class CompteTest {
     public static final String TITULAIRE_VALIDE = "Alice";
     public static final BigDecimal SOLDE_INITIAL = new BigDecimal("100.00");
     public static final BigDecimal DECOUVERT_AUTORISE = new BigDecimal("200");
+
+    private Compte compteValide;
+
+    @BeforeEach
+    void setUp() {
+        compteValide = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+    }
 
     @ParameterizedTest(name = "Cas {index} : numero={0}, titulaire={1} -> {2}")
     @DisplayName("C1 : Un numéro et un titulaire sont obligatoires")
@@ -100,71 +109,35 @@ class CompteTest {
         assertThat(compte.getSolde()).isEqualByComparingTo("150.00");
     }
 
-    @Test
-    @DisplayName("C5 : Un débit valide diminue le solde en le laissant positif")
-    void shouldDecreaseBalanceWhenDebitingLeavesPositiveBalance() {
-        // Arrange
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
+    @ParameterizedTest(name = "C5 : {0} (débit de {1} -> solde attendu {2})")
+    @DisplayName("C5 : Un débit valide met à jour le solde, y compris jusqu'à la limite exacte du découvert")
+    @CsvSource({
+            "Diminue le solde en le laissant positif,       50.00,   50.00",
+            "Ramène le solde à zéro,                       100.00,    0.00",
+            "Rend le solde négatif dans le découvert,      250.00, -150.00",
+            "Atteint exactement la limite du découvert,    300.00, -200.00"
+    })
+    void shouldDecreaseBalanceWhenDebitingWithinOverdraftLimit(
+            String scenario,
+            BigDecimal montantADebiter,
+            BigDecimal soldeAttendu) {
         // Act
-        compte.debiter(new BigDecimal("50.00"));
+        compteValide.debiter(montantADebiter);
 
         // Assert
-        assertThat(compte.getSolde()).isEqualByComparingTo("50.00");
+        assertThat(compteValide.getSolde()).isEqualByComparingTo(soldeAttendu);
     }
 
-    @Test
-    @DisplayName("C5 : Un débit égal au solde ramène le solde à zéro")
-    void shouldSetBalanceToZeroWhenDebitingExactBalance() {
-        // Arrange
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
-        // Act
-        compte.debiter(new BigDecimal("100.00"));
-
-        // Assert
-        assertThat(compte.getSolde()).isEqualByComparingTo("0.00");
-    }
-
-    @Test
-    @DisplayName("C5 : Un débit dans la limite du découvert autorisé rend le solde négatif")
-    void shouldDecreaseBalanceWhenDebitingWithinOverdraftLimit() {
-        // Arrange
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
-        // Act
-        compte.debiter(new BigDecimal("250.00"));
-
-        // Assert
-        assertThat(compte.getSolde()).isEqualByComparingTo("-150.00");
-    }
-
-    @Test
-    @DisplayName("C5 : Un débit atteignant exactement la limite du découvert autorisé est accepté")
-    void shouldAllowDebitWhenReachingExactOverdraftLimit() {
-        // Arrange (100.00 - 300.00 = -200.00, soit -DECOUVERT_AUTORISE)
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
-        // Act
-        compte.debiter(new BigDecimal("300.00"));
-
-        // Assert
-        assertThat(compte.getSolde()).isEqualByComparingTo("-200.00");
-    }
-
-    @Test
+    @Test()
     @DisplayName("C5 : Un débit au-delà du découvert autorisé lève SoldeInsuffisantException sans modifier le solde")
     void shouldThrowSoldeInsuffisantExceptionWhenExceedingOverdraftLimit() {
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-        BigDecimal montantTropEleve = new BigDecimal("500.00");
-
         // Act & Assert
         assertThrows(
                 SoldeInsuffisantException.class,
-                () -> compte.debiter(montantTropEleve)
+                () -> compteValide.debiter(new BigDecimal("500.00"))
         );
 
         // Vérifie que le solde n'a pas changé
-        assertThat(compte.getSolde()).isEqualByComparingTo(SOLDE_INITIAL);
+        assertThat(compteValide.getSolde()).isEqualByComparingTo(SOLDE_INITIAL);
     }
 }
