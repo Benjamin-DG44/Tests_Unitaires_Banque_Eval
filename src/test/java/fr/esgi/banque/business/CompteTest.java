@@ -4,6 +4,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperties;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -85,28 +86,23 @@ class CompteTest {
     @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
     @DisplayName("C3 : Créditer avec un montant négatif, nul, ou null")
     void shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant(BigDecimal montantInvalide) {
-        // Arrange
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> compte.crediter(montantInvalide)
+                () -> compteValide.crediter(montantInvalide)
         );
 
         assertEquals("Le montant à créditer doit être strictement positif", exception.getMessage());
     }
 
     @Test
+    @DisplayName("C4 : Créditer un montant positif augmente le solde du compte")
     void shouldIncreaseBalanceWhenCrediting() {
-        // Arrange
-        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-
         // Act
-        compte.crediter(new BigDecimal("50.00"));
+        compteValide.crediter(new BigDecimal("50.00"));
 
         // Assert
-        assertThat(compte.getSolde()).isEqualByComparingTo("150.00");
+        assertThat(compteValide.getSolde()).isEqualByComparingTo("150.00");
     }
 
     @ParameterizedTest(name = "C5 : {0} (débit de {1} -> solde attendu {2})")
@@ -128,7 +124,7 @@ class CompteTest {
         assertThat(compteValide.getSolde()).isEqualByComparingTo(soldeAttendu);
     }
 
-    @Test()
+    @Test
     @DisplayName("C5 : Un débit au-delà du découvert autorisé lève SoldeInsuffisantException sans modifier le solde")
     void shouldThrowSoldeInsuffisantExceptionWhenExceedingOverdraftLimit() {
         // Act & Assert
