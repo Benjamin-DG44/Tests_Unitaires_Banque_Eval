@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class CompteTest {
 
+    public static final String NUMERO_VALIDE = "FR001";
+    public static final String TITULAIRE_VALIDE = "Alice";
     public static final BigDecimal SOLDE_INITIAL = new BigDecimal("100.00");
     public static final BigDecimal DECOUVERT_AUTORISE = new BigDecimal("200");
 
@@ -45,6 +47,26 @@ class CompteTest {
         );
 
         assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @ParameterizedTest(name = "Cas {index} : soldeInitial={0}, decouvertAutorise={1}")
+    @DisplayName("C2 : Le solde initial et le découvert autorisé sont obligatoires et le découvert doit être >= 0")
+    @CsvSource({
+            // soldeInitial, decouvertAutorise
+            "              , 200.00",  // soldeInitial null
+            "100.00        ,       ",  // decouvertAutorise null
+            "              ,       ",  // les deux null
+            "100.00        , -50.00"   // decouvertAutorise négatif
+    })
+    void shouldThrowIllegalArgumentExceptionWhenSoldeOrDecouvertIsInvalid(
+            BigDecimal soldeInitial,
+            BigDecimal decouvertAutorise) {
+
+        // Act & Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, soldeInitial, decouvertAutorise)
+        );
     }
 
 
