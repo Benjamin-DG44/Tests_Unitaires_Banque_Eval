@@ -12,3 +12,7 @@
 
 La méthode crediter() ne rejette pas l'erreur IllegalArgumentException pour les montants nuls. La méthode de test :
 shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant()
+
+#### Défaut C5 : debiter()
+La méthode debiter() ne permet pas d'atteindre la limite du découvert autorisé pour le solde. La méthode de test : shouldAllowDebitWhenReachingExactOverdraftLimit()
+

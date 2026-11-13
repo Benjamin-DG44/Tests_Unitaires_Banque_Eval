@@ -100,27 +100,71 @@ class CompteTest {
         assertThat(compte.getSolde()).isEqualByComparingTo("150.00");
     }
 
-    @ParameterizedTest(name = "Cas {index} : montant={0}")
-    @NullSource
-    @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
-    @DisplayName("C4 : Débiter avec un montant négatif, nul, ou null")
-    void shouldThrowIllegalArgumentExceptionWhenDebiterInvalidMontant(BigDecimal montantInvalide) {
+    @Test
+    @DisplayName("C5 : Un débit valide diminue le solde en le laissant positif")
+    void shouldDecreaseBalanceWhenDebitingLeavesPositiveBalance() {
         // Arrange
         Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> compte.debiter(montantInvalide)
-        );
+        // Act
+        compte.debiter(new BigDecimal("50.00"));
 
-        assertEquals("Le montant à débiter doit être strictement positif", exception.getMessage());
+        // Assert
+        assertThat(compte.getSolde()).isEqualByComparingTo("50.00");
     }
 
     @Test
-    @DisplayName("C5 : ")
-    void should() {
+    @DisplayName("C5 : Un débit égal au solde ramène le solde à zéro")
+    void shouldSetBalanceToZeroWhenDebitingExactBalance() {
+        // Arrange
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
 
+        // Act
+        compte.debiter(new BigDecimal("100.00"));
+
+        // Assert
+        assertThat(compte.getSolde()).isEqualByComparingTo("0.00");
     }
 
+    @Test
+    @DisplayName("C5 : Un débit dans la limite du découvert autorisé rend le solde négatif")
+    void shouldDecreaseBalanceWhenDebitingWithinOverdraftLimit() {
+        // Arrange
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+
+        // Act
+        compte.debiter(new BigDecimal("250.00"));
+
+        // Assert
+        assertThat(compte.getSolde()).isEqualByComparingTo("-150.00");
+    }
+
+    @Test
+    @DisplayName("C5 : Un débit atteignant exactement la limite du découvert autorisé est accepté")
+    void shouldAllowDebitWhenReachingExactOverdraftLimit() {
+        // Arrange (100.00 - 300.00 = -200.00, soit -DECOUVERT_AUTORISE)
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+
+        // Act
+        compte.debiter(new BigDecimal("300.00"));
+
+        // Assert
+        assertThat(compte.getSolde()).isEqualByComparingTo("-200.00");
+    }
+
+    @Test
+    @DisplayName("C5 : Un débit au-delà du découvert autorisé lève SoldeInsuffisantException sans modifier le solde")
+    void shouldThrowSoldeInsuffisantExceptionWhenExceedingOverdraftLimit() {
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+        BigDecimal montantTropEleve = new BigDecimal("500.00");
+
+        // Act & Assert
+        assertThrows(
+                SoldeInsuffisantException.class,
+                () -> compte.debiter(montantTropEleve)
+        );
+
+        // Vérifie que le solde n'a pas changé
+        assertThat(compte.getSolde()).isEqualByComparingTo(SOLDE_INITIAL);
+    }
 }
