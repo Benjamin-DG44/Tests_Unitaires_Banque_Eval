@@ -20,80 +20,33 @@ class CompteTest {
     public static final BigDecimal SOLDE_INITIAL = new BigDecimal("100.00");
     public static final BigDecimal DECOUVERT_AUTORISE = new BigDecimal("200");
 
-    @Test
-    @DisplayName("C1 : Un numéro ne doit pas être null ou vide")
-    void shouldThrowIllegalArgumentExceptionWhenNumeroIsNullOrAndBlank() {
-        // Act and Assert
-        IllegalArgumentException resultNumeroNull = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte(null, "Alice", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-        IllegalArgumentException resultNumeroBlank = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte(null, "Alice", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-        IllegalArgumentException resultNumeroWithSpaces = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte(null, "Alice", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
+    @ParameterizedTest(name = "Cas {index} : numero={0}, titulaire={1} -> {2}")
+    @DisplayName("C1 : Un numéro et un titulaire sont obligatoires")
+    @CsvSource({
+            // numero,   titulaire, messageAttendu
+            "        ,   Alice,     Le numéro de compte est obligatoire", // numero null
+            "''      ,   Alice,     Le numéro de compte est obligatoire", // numero vide
+            "'   '   ,   Alice,     Le numéro de compte est obligatoire", // numero blank (espaces)
+            "FR001   ,        ,     Le titulaire est obligatoire",        // titulaire null
+            "FR001   ,   ''   ,     Le titulaire est obligatoire",        // titulaire vide
+            "FR001   ,   '   ',     Le titulaire est obligatoire",        // titulaire blank (spaces)
+            "        ,        ,     Le numéro de compte est obligatoire", // les deux null
+            "''      ,   ''   ,     Le numéro de compte est obligatoire",  // les deux vides
+            "'   '      ,   '   '   ,     Le numéro de compte est obligatoire"  // les deux vides (spaces)
+    })
+    void shouldThrowIllegalArgumentExceptionWhenNumeroOrTitulaireIsInvalid(
+            String numero,
+            String titulaire,
+            String expectedMessage) {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new Compte(numero, titulaire, SOLDE_INITIAL, DECOUVERT_AUTORISE)
         );
 
-        assertEquals("Le numéro de compte est obligatoire", resultNumeroNull.getMessage());
-        assertEquals("Le numéro de compte est obligatoire", resultNumeroBlank.getMessage());
-        assertEquals("Le numéro de compte est obligatoire", resultNumeroWithSpaces.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
-    @Test
-    @DisplayName("C1 : Un titulaire ne doit pas être null ou vide")
-    void shouldThrowIllegalArgumentExceptionWhenTitulaireIsNullOrAndBlank() {
-        // Act and Assert
-        IllegalArgumentException resultTitulaireNull = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte("FR001", null, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-        IllegalArgumentException resultTitulaireBlank = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte("FR002", "", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-        IllegalArgumentException resultTitulaireWithSpaces = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte("FR002", "  ", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-
-        assertEquals("Le titulaire est obligatoire", resultTitulaireNull.getMessage());
-        assertEquals("Le titulaire est obligatoire", resultTitulaireBlank.getMessage());
-        assertEquals("Le titulaire est obligatoire", resultTitulaireWithSpaces.getMessage());
-    }
-
-    @Test
-    @DisplayName("C1 : Un numéro et un titulaire ne doivent pas être null ou vide")
-    void shouldThrowIllegalArgumentExceptionWhenNumeroAndTitulaireIsNullOrAndBlank() {
-        // Act and Assert
-        IllegalArgumentException resultNumeroNull = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte(null, null, SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-        IllegalArgumentException resultNumeroBlank = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte("", "", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-        IllegalArgumentException resultNumeroWithSpaces = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Compte("", "", SOLDE_INITIAL, DECOUVERT_AUTORISE);
-                }
-        );
-
-        assertEquals("Le numéro de compte est obligatoire", resultNumeroNull.getMessage());
-        assertEquals("Le numéro de compte est obligatoire", resultNumeroBlank.getMessage());
-        assertEquals("Le numéro de compte est obligatoire", resultNumeroWithSpaces.getMessage());
-    }
 
     @Test
     void shouldIncreaseBalanceWhenCrediting() {
