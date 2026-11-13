@@ -84,7 +84,7 @@ class CompteTest {
     }
 
     @Test
-    @DisplayName("C3 : Créditer avec un montant négatif ou nul")
+    @DisplayName("C3 : Créditer avec un montant négatif, nul, ou null")
     void shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant() {
         // Arrange
         BigDecimal montantNul = new BigDecimal("0.00");
@@ -100,9 +100,14 @@ class CompteTest {
                 IllegalArgumentException.class,
                 () -> compteA.crediter(montantNul)
         );
+        IllegalArgumentException resultNull = assertThrows(
+                IllegalArgumentException.class,
+                () -> compteA.crediter(null)
+        );
 
         assertEquals("Le montant à créditer doit être strictement positif", resultNegatif.getMessage());
         assertEquals("Le montant à créditer doit être strictement positif", resultNul.getMessage());
+        assertEquals("Le montant à créditer doit être strictement positif", resultNull.getMessage());
     }
 
 }
