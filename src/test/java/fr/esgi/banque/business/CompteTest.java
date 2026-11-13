@@ -89,4 +89,21 @@ class CompteTest {
         assertEquals("Le montant à créditer doit être strictement positif", exception.getMessage());
     }
 
+    @ParameterizedTest(name = "Cas {index} : montant={0}")
+    @NullSource
+    @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
+    @DisplayName("C4 : Débiter avec un montant négatif, nul, ou null")
+    void shouldThrowIllegalArgumentExceptionWhenDebiterInvalidMontant(BigDecimal montantInvalide) {
+        // Arrange
+        Compte compte = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> compte.debiter(montantInvalide)
+        );
+
+        assertEquals("Le montant à débiter doit être strictement positif", exception.getMessage());
+    }
+
 }
