@@ -1,10 +1,8 @@
 package fr.esgi.banque.business;
 
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperties;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -135,5 +133,31 @@ class CompteTest {
 
         // Vérifie que le solde n'a pas changé
         assertThat(compteValide.getSolde()).isEqualByComparingTo(SOLDE_INITIAL);
+    }
+
+    @Test
+    @DisplayName("C6 : Retourne false lorsque le solde est positif")
+    void shouldReturnFalseWhenBalanceIsPositive() {
+        // Arrange
+        compteValide.debiter(new BigDecimal("10.00"));
+
+        // Act
+        boolean result = compteValide.estVide();
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("C6 : Retourne true lorsque le solde est nul")
+    void shouldReturnTrueWhenBalanceIsZero() {
+        // Arrange
+        compteValide.debiter(compteValide.getSolde()); // SOLDE - SOLDE = 0
+
+        // Act
+        boolean result = compteValide.estVide();
+
+        // Assert
+        assertThat(result).isTrue();
     }
 }
