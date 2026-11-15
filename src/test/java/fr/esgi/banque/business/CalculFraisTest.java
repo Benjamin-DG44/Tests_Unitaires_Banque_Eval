@@ -3,8 +3,6 @@ package fr.esgi.banque.business;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 
@@ -105,5 +103,31 @@ public class CalculFraisTest {
 
         // Assert
         assertThat(result).isEqualByComparingTo("2.00");
+    }
+
+    @Test
+    @DisplayName("F4 : Les frais de tenue de compte sont gratuits si le solde moyen est supérieur ou égal à 1000 euros")
+    void shouldReturnZeroFeesWhenAverageBalanceIsAtLeast1000Euros() {
+        // Arrange
+        int ageTitulaire = 30;
+        boolean cartePremium = false;
+        BigDecimal soldeMoyen1 = new BigDecimal("1000.00");
+        BigDecimal soldeMoyen2 = new BigDecimal("1000.01");
+
+        // Act
+        BigDecimal resultA = calculFrais.fraisMensuels(
+                ageTitulaire,
+                soldeMoyen1,
+                cartePremium
+        );
+        BigDecimal resultB = calculFrais.fraisMensuels(
+                ageTitulaire,
+                soldeMoyen2,
+                cartePremium
+        );
+
+        // Assert
+        assertThat(resultA).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(resultB).isEqualByComparingTo(BigDecimal.ZERO);
     }
 }
