@@ -125,4 +125,43 @@ public class CalculFraisTest {
         // Assert
         assertThat(result).isEqualByComparingTo(BigDecimal.ZERO);
     }
+
+    @Test
+    @DisplayName("F5 : Une carte premium ajoute 5 euros aux frais de tenue de compte")
+    void shouldAddFiveEurosForPremiumCard() {
+        // Arrange
+        int ageTitulaire = 30;
+        BigDecimal soldeMoyen = new BigDecimal("100.00");
+        boolean cartePremium = true;
+
+        // Act
+        BigDecimal result = calculFrais.fraisMensuels(
+                ageTitulaire,
+                soldeMoyen,
+                cartePremium
+        );
+
+        // Assert
+        assertThat(result).isEqualByComparingTo("7.00");
+    }
+
+    @Test
+    @DisplayName("F5 : Le supplément premium reste dû lorsque les frais de tenue sont offerts")
+    void shouldChargeFiveEurosForPremiumCardWhenAccountFeesAreFree() {
+        // Arrange
+        int ageTitulaire = 30;
+        BigDecimal soldeMoyen = new BigDecimal("1000.00");
+        boolean cartePremium = true;
+
+        // Act
+        BigDecimal result = calculFrais.fraisMensuels(
+                ageTitulaire,
+                soldeMoyen,
+                cartePremium
+        );
+
+        // Assert
+        assertThat(result).isEqualByComparingTo("5.00");
+    }
+
 }
