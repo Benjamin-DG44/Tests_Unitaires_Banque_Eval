@@ -2,7 +2,8 @@
 
 ## Identité
 
-**Etudiant** : Benjamin DELAUNAY-GUITTON **Campus** : Nantes
+**Etudiant** : Benjamin DELAUNAY-GUITTON </br>
+**Campus** : Nantes
 
 ## Partie A : tester et corriger l'existant
 
@@ -26,3 +27,8 @@ La méthode estVide() ne renvoie pas `true` pour un solde de 0. La méthode de t
 
 La méthode fraisMensuel() renvoie `0` euros alors que le titulaire à 26 ans. La méthode de test est :
 shouldReturnMonthlyAccountFeesWhenTitularIs26YearsOld()
+
+#### Défaut F4 : fraisMensuel()
+
+La méthode fraisMensuel() renvoie `2.00` euros au lieu de `0.00` euros quand le solde moyen dépasse 1000 euros ou plus.
+La méthode de test : shouldReturnZeroFeesWhenAverageBalanceIsAtLeast1000Euros()
