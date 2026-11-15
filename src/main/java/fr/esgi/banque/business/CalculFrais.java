@@ -17,30 +17,27 @@ import java.math.BigDecimal;
  */
 public class CalculFrais {
 
-	static final BigDecimal FRAIS_TENUE = new BigDecimal("2.00");
-	static final BigDecimal SUPPLEMENT_PREMIUM = new BigDecimal("5.00");
-	static final int AGE_MAJORITE = 18;
-	static final int AGE_JEUNE = 26;
-	static final BigDecimal SEUIL_GRATUITE = new BigDecimal("1000");
+    static final BigDecimal FRAIS_TENUE = new BigDecimal("2.00");
+    static final BigDecimal SUPPLEMENT_PREMIUM = new BigDecimal("5.00");
+    static final int AGE_MAJORITE = 18;
+    static final int AGE_JEUNE = 26;
+    static final BigDecimal SEUIL_GRATUITE = new BigDecimal("1000");
 
-	public BigDecimal fraisMensuels(int ageTitulaire, BigDecimal soldeMoyen, boolean cartePremium) {
-		if (ageTitulaire < AGE_MAJORITE) {
-			throw new IllegalArgumentException("Le titulaire doit être majeur");
-		}
-		if (soldeMoyen == null) {
-			throw new IllegalArgumentException("Le solde moyen est obligatoire");
-		}
-		if (ageTitulaire < AGE_JEUNE) {
-			return BigDecimal.ZERO;
-		}
-		if (soldeMoyen.compareTo(SEUIL_GRATUITE) >= 0) {
-			return BigDecimal.ZERO;
-		}
-		BigDecimal frais = FRAIS_TENUE;
-		if (cartePremium) {
-			frais = frais.add(SUPPLEMENT_PREMIUM);
-		}
-		return frais;
-	}
+    public BigDecimal fraisMensuels(int ageTitulaire, BigDecimal soldeMoyen, boolean cartePremium) {
+        if (ageTitulaire < AGE_MAJORITE) {
+            throw new IllegalArgumentException("Le titulaire doit être majeur");
+        }
+        if (soldeMoyen == null) {
+            throw new IllegalArgumentException("Le solde moyen est obligatoire");
+        }
+        BigDecimal frais = FRAIS_TENUE;
+        if (ageTitulaire < AGE_JEUNE || soldeMoyen.compareTo(SEUIL_GRATUITE) >= 0) {
+            frais = BigDecimal.ZERO;
+        }
+        if (cartePremium) {
+            frais = frais.add(SUPPLEMENT_PREMIUM);
+        }
+        return frais;
+    }
 
 }

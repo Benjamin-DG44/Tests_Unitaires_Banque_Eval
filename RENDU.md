@@ -32,3 +32,8 @@ shouldReturnMonthlyAccountFeesWhenTitularIs26YearsOld()
 
 La méthode fraisMensuel() renvoie `2.00` euros au lieu de `0.00` euros quand le solde moyen dépasse 1000 euros ou plus.
 La méthode de test : shouldReturnZeroFeesWhenAverageBalanceIsAtLeast1000Euros()
+
+#### Défaut F5 : fraisMensuel()
+
+La méthode fraisMensuel() renvoie `0.00` euros au lieu de `5.00` euros alors que le titulaire détient une carte prenium
+La méthode de test : shouldChargeFiveEurosForPremiumCardWhenAccountFeesAreFree()
