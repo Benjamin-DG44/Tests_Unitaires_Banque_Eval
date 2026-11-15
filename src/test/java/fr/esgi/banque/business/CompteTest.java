@@ -3,18 +3,16 @@ package fr.esgi.banque.business;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperties;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.provider.ValueSources;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.BIG_DECIMAL;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test d'exemple fourni pour vérifier que le projet est bien configuré.
@@ -175,40 +173,30 @@ class CompteTest {
         assertThat(result).isFalse();
     }
 
-    @Test
-    @DisplayName("Renvoie true quand le solde est < 0")
-    void shouldReturnTrueWhenBalanceIsStrictlyNegative() {
+    @ParameterizedTest(name = "Cas {index} : solde={0} -> estADecouvert={1}")
+    @CsvSource({ // solde, résultat attendu
+            "-200.00, true",
+            "-150.00, true",
+            "-0.01,   true",
+            "0.00,    false",
+            "0.01,    false",
+            "50.00,   false",
+            "100.00,  false"
+    })
+    @DisplayName("C7 : Un compte est à découvert lorsque son solde est strictement négatif")
+    void shouldDetermineIfAccountIsOverdrawn(String solde, boolean expectedResult) {
         // Arrange
-        compteValide.debiter(new BigDecimal("150.00"));
+        Compte compte = new Compte(
+                NUMERO_VALIDE,
+                TITULAIRE_VALIDE,
+                new BigDecimal(solde),
+                DECOUVERT_AUTORISE
+        );
 
         // Act
-        boolean result = compteValide.estADecouvert();
+        boolean result = compte.estADecouvert();
 
         // Assert
-        assertTrue(result);
-    }
-
-    @Test
-    @DisplayName("Renvoie false quand le solde est = 0")
-    void shouldReturnFalseWhenBalanceIsEqualToZero() {
-        // Arrange
-        compteValide.debiter(compteValide.getSolde()); // SOLDE - SOLDE = 0
-
-        // Act
-        boolean result = compteValide.estADecouvert();
-
-        // Assert
-        assertThat(BigDecimal.ZERO).isEqualByComparingTo(compteValide.getSolde());
-        assertFalse(result);
-    }
-
-    @Test
-    @DisplayName("Renvoie false quand le solde est > 0")
-    void shouldReturnFalseWhenBalanceIsStrictlyPositive() {
-        // Act
-        boolean result = compteValide.estADecouvert();
-
-        // Assert
-        assertFalse(result);
+        assertThat(result).isEqualTo(expectedResult);
     }
 }
