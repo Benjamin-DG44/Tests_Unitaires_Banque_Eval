@@ -70,4 +70,40 @@ public class CalculFraisTest {
         // Assert
         assertThat(result).isEqualByComparingTo("2.00");
     }
+
+    @Test
+    @DisplayName("F3 : Les frais de tenue de compte par mois sont gratuits pour les moins de 26 ans")
+    void shouldReturnZeroFeesForTitulaireUnder26YearsOld() {
+        // Arrange
+        int ageTitulaire = 25;
+        boolean cartePremium = false;
+
+        // Act
+        BigDecimal result = calculFrais.fraisMensuels(
+                ageTitulaire,
+                SOLDE_MOYEN,
+                cartePremium
+        );
+
+        // Assert
+        assertThat(result).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("F3 : À 26 ans, les frais de tenue ne sont plus gratuits")
+    void shouldReturnMonthlyAccountFeesWhenTitularIs26YearsOld() {
+        // Arrange
+        int ageTitulaire = 26;
+        boolean cartePremium = false;
+
+        // Act
+        BigDecimal result = calculFrais.fraisMensuels(
+                ageTitulaire,
+                SOLDE_MOYEN,
+                cartePremium
+        );
+
+        // Assert
+        assertThat(result).isEqualByComparingTo("2.00");
+    }
 }
