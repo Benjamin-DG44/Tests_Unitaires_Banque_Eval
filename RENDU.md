@@ -16,3 +16,5 @@ shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant()
 #### Défaut C5 : debiter()
 La méthode debiter() ne permet pas d'atteindre la limite du découvert autorisé pour le solde. La méthode de test : shouldAllowDebitWhenReachingExactOverdraftLimit()
 
+#### Défaut C6 : estVide()
+La méthode estVide() ne renvoie pas `true` pour un solde de 0. La méthode de test : shouldReturnTrueWhenBalanceIsZero()
