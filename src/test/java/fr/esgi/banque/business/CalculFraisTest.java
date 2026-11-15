@@ -10,11 +10,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CalculFraisTest {
 
-    private final BigDecimal SOLDE_MOYEN = new BigDecimal("100.00");
+    private static final BigDecimal SOLDE_MOYEN = new BigDecimal("100.00");
 
     private CalculFrais calculFrais;
 
