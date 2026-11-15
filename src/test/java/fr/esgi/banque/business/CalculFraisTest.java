@@ -3,6 +3,8 @@ package fr.esgi.banque.business;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 
@@ -105,29 +107,22 @@ public class CalculFraisTest {
         assertThat(result).isEqualByComparingTo("2.00");
     }
 
-    @Test
+    @ParameterizedTest(name = "Cas {index} : soldeMoyen={0}")
+    @ValueSource(strings = {"1000.00", "1000.01"})
     @DisplayName("F4 : Les frais de tenue de compte sont gratuits si le solde moyen est supérieur ou égal à 1000 euros")
-    void shouldReturnZeroFeesWhenAverageBalanceIsAtLeast1000Euros() {
+    void shouldReturnZeroFeesWhenAverageBalanceIsAtLeast1000Euros(BigDecimal soldeMoyen) {
         // Arrange
         int ageTitulaire = 30;
         boolean cartePremium = false;
-        BigDecimal soldeMoyen1 = new BigDecimal("1000.00");
-        BigDecimal soldeMoyen2 = new BigDecimal("1000.01");
 
         // Act
-        BigDecimal resultA = calculFrais.fraisMensuels(
+        BigDecimal result = calculFrais.fraisMensuels(
                 ageTitulaire,
-                soldeMoyen1,
-                cartePremium
-        );
-        BigDecimal resultB = calculFrais.fraisMensuels(
-                ageTitulaire,
-                soldeMoyen2,
+                soldeMoyen,
                 cartePremium
         );
 
         // Assert
-        assertThat(resultA).isEqualByComparingTo(BigDecimal.ZERO);
-        assertThat(resultB).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(result).isEqualByComparingTo(BigDecimal.ZERO);
     }
 }
