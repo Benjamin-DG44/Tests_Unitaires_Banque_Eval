@@ -8,31 +8,37 @@
 
 ## Partie A : tester et corriger l'existant
 
-### Liste des défauts
+### Liste des défauts : [CompteTest](./src/test/java/fr/esgi/banque/business/CompteTest.java)
 
 #### Défaut C3 : `crediter()`
 
-La méthode `crediter()` ne rejette pas les montants nuls avec une `IllegalArgumentException`.
+La méthode `crediter()` ne rejette pas les montants nuls, négatifs ou `null` avec une `IllegalArgumentException`.
 
 La méthode de test :  
 `shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant()`
-----
+
+---
 
 #### Défaut C5 : `debiter()`
 
-La méthode `debiter()` ne permet pas d'atteindre la limite du découvert autorisé pour le solde.
+La méthode `debiter()` ne permet pas d'atteindre exactement la limite du découvert autorisé pour le solde, alors que ce
+débit doit être accepté.
 
 La méthode de test :  
 `shouldAllowDebitWhenReachingExactOverdraftLimit()`
-----
+
+---
 
 #### Défaut C6 : `estVide()`
 
-La méthode `estVide()` ne renvoie pas `true` pour un solde de 0.
+La méthode `estVide()` ne renvoie pas `true` lorsque le solde est égal à zéro, quelle que soit son échelle (`0`, `0.0`,
+`0.00`, etc.).
 
 La méthode de test :  
-`shouldReturnTrueWhenBalanceIsZero()`
+`shouldReturnTrueWhenBalanceIsZeroRegardlessOfScale()`
 ----
+
+### Liste des défauts : [CalculFraisTest](./src/test/java/fr/esgi/banque/business/CalculFraisTest.java)
 
 #### Défaut F3 : `fraisMensuels()`
 

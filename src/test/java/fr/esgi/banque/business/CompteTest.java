@@ -14,83 +14,94 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Test d'exemple fourni pour vérifier que le projet est bien configuré.
- * À compléter (partie A).
- */
 class CompteTest {
 
-    public static final String NUMERO_VALIDE = "FR001";
-    public static final String TITULAIRE_VALIDE = "Alice";
-    public static final BigDecimal SOLDE_INITIAL = new BigDecimal("100.00");
-    public static final BigDecimal DECOUVERT_AUTORISE = new BigDecimal("200");
+    private static final String NUMERO_VALIDE = "FR001";
+    private static final String TITULAIRE_VALIDE = "Alice";
+    private static final BigDecimal SOLDE_INITIAL = new BigDecimal("100.00");
+    private static final BigDecimal DECOUVERT_AUTORISE = new BigDecimal("200.00");
 
     private Compte compteValide;
 
     @BeforeEach
     void setUp() {
-        compteValide = new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, SOLDE_INITIAL, DECOUVERT_AUTORISE);
+        compteValide = new Compte(
+                NUMERO_VALIDE,
+                TITULAIRE_VALIDE,
+                SOLDE_INITIAL,
+                DECOUVERT_AUTORISE
+        );
     }
 
-    @ParameterizedTest(name = "Cas {index} : numero={0}, titulaire={1} -> {2}")
+    @ParameterizedTest(name = "Cas {index} : numero={0}, titulaire={1}")
     @DisplayName("C1 : Un numéro et un titulaire sont obligatoires")
     @CsvSource({
-            // numero,   titulaire, messageAttendu
-            "        ,   Alice,     Le numéro de compte est obligatoire", // numero null
-            "''      ,   Alice,     Le numéro de compte est obligatoire", // numero vide
-            "'   '   ,   Alice,     Le numéro de compte est obligatoire", // numero blank (espaces)
-            "FR001   ,        ,     Le titulaire est obligatoire",        // titulaire null
-            "FR001   ,   ''   ,     Le titulaire est obligatoire",        // titulaire vide
-            "FR001   ,   '   ',     Le titulaire est obligatoire",        // titulaire blank (spaces)
-            "        ,        ,     Le numéro de compte est obligatoire", // les deux null
-            "''      ,   ''   ,     Le numéro de compte est obligatoire",  // les deux vides
-            "'   '      ,   '   '   ,     Le numéro de compte est obligatoire"  // les deux vides (spaces)
+            // numero, titulaire, message attendu
+            "        , Alice,     Le numéro de compte est obligatoire",
+            "''      , Alice,     Le numéro de compte est obligatoire",
+            "'   '   , Alice,     Le numéro de compte est obligatoire",
+            "FR001   ,        ,     Le titulaire est obligatoire",
+            "FR001   , ''     ,     Le titulaire est obligatoire",
+            "FR001   , '   '  ,     Le titulaire est obligatoire",
+            "        ,        ,     Le numéro de compte est obligatoire",
+            "''      , ''     ,     Le numéro de compte est obligatoire",
+            "'   '   , '   '  ,     Le numéro de compte est obligatoire"
     })
     void shouldThrowIllegalArgumentExceptionWhenNumeroOrTitulaireIsInvalid(
             String numero,
             String titulaire,
-            String expectedMessage) {
-        // Act & Assert
+            String expectedMessage
+    ) {
+        // Act
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new Compte(numero, titulaire, SOLDE_INITIAL, DECOUVERT_AUTORISE)
         );
 
+        // Assert
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @ParameterizedTest(name = "Cas {index} : soldeInitial={0}, decouvertAutorise={1}")
     @DisplayName("C2 : Le solde initial et le découvert autorisé sont obligatoires et le découvert doit être >= 0")
     @CsvSource({
-            // soldeInitial, decouvertAutorise
-            "              , 200.00",  // soldeInitial null
-            "100.00        ,       ",  // decouvertAutorise null
-            "              ,       ",  // les deux null
-            "100.00        , -50.00"   // decouvertAutorise négatif
+            // solde initial, découvert autorisé, message attendu
+            "              , 200.00, Le solde initial et le découvert autorisé sont obligatoires",
+            "100.00        ,       , Le solde initial et le découvert autorisé sont obligatoires",
+            "              ,       , Le solde initial et le découvert autorisé sont obligatoires",
+            "100.00        , -50.00, Le découvert autorisé doit être positif ou nul"
     })
     void shouldThrowIllegalArgumentExceptionWhenSoldeOrDecouvertIsInvalid(
             BigDecimal soldeInitial,
-            BigDecimal decouvertAutorise) {
-
-        // Act & Assert
-        assertThrows(
+            BigDecimal decouvertAutorise,
+            String expectedMessage
+    ) {
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new Compte(NUMERO_VALIDE, TITULAIRE_VALIDE, soldeInitial, decouvertAutorise)
         );
+
+        // Assert
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @ParameterizedTest(name = "Cas {index} : montant={0}")
     @NullSource
     @ValueSource(strings = {"0.00", "-0.01", "-10.00"})
-    @DisplayName("C3 : Créditer avec un montant négatif, nul, ou null")
+    @DisplayName("C3 : Créditer avec un montant négatif, nul ou null")
     void shouldThrowIllegalArgumentExceptionWhenCreditingInvalidMontant(BigDecimal montantInvalide) {
-        // Act & Assert
+        // Act
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> compteValide.crediter(montantInvalide)
         );
 
-        assertEquals("Le montant à créditer doit être strictement positif", exception.getMessage());
+        // Assert
+        assertEquals(
+                "Le montant à créditer doit être strictement positif",
+                exception.getMessage()
+        );
     }
 
     @Test
@@ -114,7 +125,8 @@ class CompteTest {
     void shouldDecreaseBalanceWhenDebitingWithinOverdraftLimit(
             String scenario,
             BigDecimal montantADebiter,
-            BigDecimal soldeAttendu) {
+            BigDecimal soldeAttendu
+    ) {
         // Act
         compteValide.debiter(montantADebiter);
 
@@ -125,13 +137,13 @@ class CompteTest {
     @Test
     @DisplayName("C5 : Un débit au-delà du découvert autorisé lève SoldeInsuffisantException sans modifier le solde")
     void shouldThrowSoldeInsuffisantExceptionWhenExceedingOverdraftLimit() {
-        // Act & Assert
+        // Act
         assertThrows(
                 SoldeInsuffisantException.class,
                 () -> compteValide.debiter(new BigDecimal("500.00"))
         );
 
-        // Vérifie que le solde n'a pas changé
+        // Assert
         assertThat(compteValide.getSolde()).isEqualByComparingTo(SOLDE_INITIAL);
     }
 
@@ -174,7 +186,7 @@ class CompteTest {
     }
 
     @ParameterizedTest(name = "Cas {index} : solde={0} -> estADecouvert={1}")
-    @CsvSource({ // solde, résultat attendu
+    @CsvSource({
             "-200.00, true",
             "-150.00, true",
             "-0.01,   true",
