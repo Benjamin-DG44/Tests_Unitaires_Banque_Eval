@@ -3,16 +3,18 @@ package fr.esgi.banque.business;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperties;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.ValueSources;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.InstanceOfAssertFactories.BIG_DECIMAL;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test d'exemple fourni pour vérifier que le projet est bien configuré.
@@ -171,5 +173,42 @@ class CompteTest {
 
         // Assert
         assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("Renvoie true quand le solde est < 0")
+    void shouldReturnTrueWhenBalanceIsStrictlyNegative() {
+        // Arrange
+        compteValide.debiter(new BigDecimal("150.00"));
+
+        // Act
+        boolean result = compteValide.estADecouvert();
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("Renvoie false quand le solde est = 0")
+    void shouldReturnFalseWhenBalanceIsEqualToZero() {
+        // Arrange
+        compteValide.debiter(compteValide.getSolde()); // SOLDE - SOLDE = 0
+
+        // Act
+        boolean result = compteValide.estADecouvert();
+
+        // Assert
+        assertThat(BigDecimal.ZERO).isEqualByComparingTo(compteValide.getSolde());
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Renvoie false quand le solde est > 0")
+    void shouldReturnFalseWhenBalanceIsStrictlyPositive() {
+        // Act
+        boolean result = compteValide.estADecouvert();
+
+        // Assert
+        assertFalse(result);
     }
 }
