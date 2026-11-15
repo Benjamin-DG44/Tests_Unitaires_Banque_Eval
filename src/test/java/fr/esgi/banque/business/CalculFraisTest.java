@@ -3,9 +3,12 @@ package fr.esgi.banque.business;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CalculFraisTest {
@@ -48,5 +51,23 @@ public class CalculFraisTest {
 
         // Assert
         assertEquals("Le solde moyen est obligatoire", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("F2 : Les frais de tenue de compte sont de 2,00 € par mois")
+    void shouldReturnTwoEurosForMonthlyAccountFees() {
+        // Arrange
+        int ageTitulaire = 30;
+        boolean cartePremium = false;
+
+        // Act
+        BigDecimal result = calculFrais.fraisMensuels(
+                ageTitulaire,
+                SOLDE_MOYEN,
+                cartePremium
+        );
+
+        // Assert
+        assertThat(result).isEqualByComparingTo("2.00");
     }
 }
