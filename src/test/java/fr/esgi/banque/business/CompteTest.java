@@ -135,29 +135,41 @@ class CompteTest {
         assertThat(compteValide.getSolde()).isEqualByComparingTo(SOLDE_INITIAL);
     }
 
-    @Test
-    @DisplayName("C6 : Retourne false lorsque le solde est positif")
-    void shouldReturnFalseWhenBalanceIsPositive() {
+    @ParameterizedTest(name = "Cas {index} : solde={0} -> compte vide")
+    @ValueSource(strings = {"0", "0.0", "0.00", "0.000", "0.0000"})
+    @DisplayName("C6 : Un compte est vide lorsque son solde est égal à zéro")
+    void shouldReturnTrueWhenBalanceIsZeroRegardlessOfScale(String solde) {
         // Arrange
-        compteValide.debiter(new BigDecimal("10.00"));
+        Compte compte = new Compte(
+                NUMERO_VALIDE,
+                TITULAIRE_VALIDE,
+                new BigDecimal(solde),
+                DECOUVERT_AUTORISE
+        );
 
         // Act
-        boolean result = compteValide.estVide();
-
-        // Assert
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("C6 : Retourne true lorsque le solde est nul")
-    void shouldReturnTrueWhenBalanceIsZero() {
-        // Arrange
-        compteValide.debiter(compteValide.getSolde()); // SOLDE - SOLDE = 0
-
-        // Act
-        boolean result = compteValide.estVide();
+        boolean result = compte.estVide();
 
         // Assert
         assertThat(result).isTrue();
+    }
+
+    @ParameterizedTest(name = "Cas {index} : solde={0} -> compte non vide")
+    @ValueSource(strings = {"0.01", "10.00", "-10.00", "-0.01"})
+    @DisplayName("C6 : Un compte n'est pas vide lorsque son solde est différent de zéro")
+    void shouldReturnFalseWhenBalanceIsNotZero(String solde) {
+        // Arrange
+        Compte compte = new Compte(
+                NUMERO_VALIDE,
+                TITULAIRE_VALIDE,
+                new BigDecimal(solde),
+                DECOUVERT_AUTORISE
+        );
+
+        // Act
+        boolean result = compte.estVide();
+
+        // Assert
+        assertThat(result).isFalse();
     }
 }
