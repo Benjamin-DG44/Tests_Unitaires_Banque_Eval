@@ -5,6 +5,9 @@
 **Étudiant** : Benjamin DELAUNAY-GUITTON  
 **Campus** : Nantes
 ----
+## Run with coverage
+![Run with coverage](coverage.png)
+----
 
 ## Partie A : tester et corriger l'existant
 
@@ -68,3 +71,6 @@ La méthode de test :
 - Après refactoring :`shouldAlwaysChargeFiveEurosForPremiumCard()`
 
 ----
+## Partie B : service de virement en TDD
+
+**Non réalisée.**
